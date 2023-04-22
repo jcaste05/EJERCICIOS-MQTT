@@ -6,7 +6,7 @@ t1_temperatures = [] #Variables globales para realizar los calculos solicitados
 t2_temperatures = []
 
 def calculate_statistics():
-    t1_max = max(t1_temperatures)
+    t1_max = max(t1_temperatures) #Hacemos los cálculos sobre los datos que hayamos leído hasta el momento
     t1_min = min(t1_temperatures)
     t1_media = sum(t1_temperatures) / len(t1_temperatures)
     t2_max = max(t2_temperatures)
@@ -15,18 +15,18 @@ def calculate_statistics():
     print(f'SENSOR 1 - Max: {t1_max}, Min: {t1_min}, Media: {t1_media}')
     print(f'SENSOR 2 - Max: {t2_max}, Min: {t2_min}, Media: {t2_media}')
     # Vaciamos las listas
-    t1_temperatures.clear()
+    t1_temperatures.clear() #Una vez hechos los c
     t2_temperatures.clear()
 
 def on_connect(client, rc):
     print("Conectado con código de resultado: " + str(rc))
-    client.subscribe('temperature/t1')
+    client.subscribe('temperature/t1') #Nos conectamos a los dos sensores de temperatura
     client.subscribe('temperature/t2')
 
 def on_message(client, userdata, msg):
     data = msg.payload.decode()
     topic = msg.topic
-    if topic == 'temperature/t1':
+    if topic == 'temperature/t1': #Dependiendo de dónde hayamos recibido el data añadimos la temperatura a la lista correspondiente
         t1_temperatures.append(float(data))
     elif topic == 'temperature/t2':
         t2_temperatures.append(float(data))
@@ -42,7 +42,7 @@ def main(hostname):
 
     while True:
         sleep(5) #Esperamos 5 segundos
-        calculate_statistics()
+        calculate_statistics() #Cada 5 segundos hacemos los cáculos de hallar la media, mínimo y máximo de las temperaturas
 
 
 if __name__ == '__main__':
