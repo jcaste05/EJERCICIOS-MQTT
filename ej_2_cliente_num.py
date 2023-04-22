@@ -6,15 +6,15 @@ from sympy import isprime
 
 def on_connect(client, userdata, rc):
     print("Conectado con código de resultado: " + str(rc))
-    client.subscribe("numbers")
+    client.subscribe("numbers") #Nos suscribimos al topic 'numbers'
 
 def on_message(client, userdata, msg):
     data = msg.payload.decode()
         
-    try:
+    try: #Intentamos convertirlo a entero el número recibido. Si da error es porque es un float y lo pasamos a float
         num = int(data)
         num_str = str(num)
-        if num_str in userdata['frecuencias']:
+        if num_str in userdata['frecuencias']: #Si ya hay una entrada al diccionario con ese número aumenta en uno la frecuencia
             userdata['frecuencias'][num_str] += 1
         else:
             userdata['frecuencias'][num_str] = 1
@@ -39,12 +39,12 @@ def on_message(client, userdata, msg):
         except ValueError:
             print("No se pudo convertir el dato a número")
     
-    for key, value in userdata.items():
+    for key, value in userdata.items(): #Imprimimos por pantalla  el diccionario con toda la informaci
         print(key, value)
             
             
 def main(hostname):
-    userdata = {
+    userdata = { #Vamos a almacenar la información en un diccionario, llevaremos los números enteros, los números con coma_flotante y una tabla de frecuencias que será otro diccionario
         'enteros': [],
         'coma_flotante': [],
         'frecuencias': {}
