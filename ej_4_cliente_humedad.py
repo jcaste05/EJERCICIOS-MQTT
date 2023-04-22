@@ -7,35 +7,34 @@ K1 = 60
 listening_humidity = False
 
 def on_connect(mqttc, userdata, flags, rc):
-    print("CONNECT:", userdata, flags, rc)
+    mqttc.subscribe('temperature/t1') #Nos conectamos inicialmente a los sensores de temperatura
+    mqttc.subscribe('temperature/t2')
 
 def on_message(mqttc, userdata, msg):
     global listening_humidity
     print("MESSAGE:", userdata, msg.topic, msg.qos, msg.payload, msg.retain)
     
-    if msg.topic == 'temperature/t1' or msg.topic == 'temperature/t2':
+    if msg.topic == 'temperature/t1' or msg.topic == 'temperature/t2': #Si lo que leemos es temperatura nos suscribimos o desuscribimos de humedad
         temperature = int(msg.payload.decode())
         
         if temperature > K0 and not listening_humidity:
             print("Listening to humidity")
-            mqttc.subscribe('humidity')
+            mqttc.subscribe('humidity') #Nos suscribimos a humedad si no lo estábamos y hemos leído una temperatura superior a K0
             listening_humidity = True
-        elif (temperature <= K0 or listening_humidity) and listening_humidity:
+        elif temperature <= K0 and listening_humidity:
             print("Not listening to humidity")
             mqttc.unsubscribe('humidity')
             listening_humidity = False
         
-    elif msg.topic == 'humidity':
+    elif msg.topic == 'humidity': 
         humidity = int(msg.payload.decode())
         
-        if humidity > K1 and not listening_humidity:
-            print("Listening to humidity")
-            mqttc.subscribe('humidity')
-            listening_humidity = True
-        elif humidity <= K1 and listening_humidity:
+        if humidity > K1 and listening_humidity: #Si supera K1 nos desuscribimos
             print("Not listening to humidity")
             mqttc.unsubscribe('humidity')
             listening_humidity = False
+        else:
+            print("Listening to humidity")
 
 def on_publish(mqttc, userdata, mid):
     print("PUBLISH:", userdata, mid)
@@ -59,8 +58,7 @@ def main(hostname):
 
     mqttc.connect(hostname)
 
-    mqttc.subscribe('temperature/t1')
-    mqttc.subscribe('temperature/t2')
+    
 
     mqttc.loop_start()
     
